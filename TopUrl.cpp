@@ -22,7 +22,7 @@ void TopUrl::preprocess()
     }
     while (fscanf(fin,"%s",url)!=EOF)
     {
-        unsigned int m = SDBMHash(url) % N;
+        unsigned int m = SDBM_hash(url) % N;
         fprintf(ftemp[m],"%s\n",url);
     }
     fclose(fin);
