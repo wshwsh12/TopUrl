@@ -1,33 +1,41 @@
 #include "TopUrl.h"
 
 
-TopUrl::TopUrl(int n):N(n)
+TopUrl::TopUrl()
 {
-    ftemp = (FILE **)malloc(sizeof(FILE *) * N);
+    ftemp_block = (FILE **)malloc(sizeof(FILE *) * N);
+    url   = (char*)malloc(sizeof (char) * 100000);
 }
 
 TopUrl::~TopUrl()
 {
-    free(ftemp);
+    free(ftemp_block);
+    free(url);
 }
 
 //split data to block
 void TopUrl::preprocess()
 {
-    fin = fopen("data.txt","r");
+    if ((fin = fopen("data.txt","r"))==NULL)
+        throw "Open file error.";
+    
     for (int i = 0;i < N;i++)
     {
         string filename = std::to_string(i) + ".txt";
-        ftemp[i] = fopen(filename.c_str(),"w");
+        if ((ftemp_block[i] = fopen(filename.c_str(),"w"))==NULL)
+            throw "Open file error.";
     }
+
+    //split url to hash(url)%500 th block
     while (fscanf(fin,"%s",url)!=EOF)
     {
         unsigned int m = SDBM_hash(url) % N;
-        fprintf(ftemp[m],"%s\n",url);
+        fprintf(ftemp_block[m],"%s\n",url);
     }
+    
     fclose(fin);
     for (int i = 0;i < N;i++)
-        fclose(ftemp[i]);
+        fclose(ftemp_block[i]);
 };
 
 //count num for all block
@@ -36,21 +44,24 @@ void TopUrl::count_for_all_block()
     for (int i = 0;i < N;i++)
     {
         string filename = std::to_string(i) + ".txt";
-        ftemp[i] = fopen(filename.c_str(),"r");
+        if ((ftemp_block[i] = fopen(filename.c_str(),"r"))==NULL)
+            throw "Open file error.";
     }
-    fcount = fopen("count.txt","w");
+    if ((fcollect = fopen("collect.txt","w"))==NULL)
+        throw "Open file error.";
 
     for (int i = 0;i < N;i++)
     {
         hashmap.clear();
-        while (fscanf(ftemp[i],"%s",url)!=EOF)
+        //count num
+        while (fscanf(ftemp_block[i],"%s",url)!=EOF)
         {
             string ss = url;
             hashmap[ss]++;
         }
 
+        //heap-sort
         while (priqueue.size()) priqueue.pop();
-
         for (it = hashmap.begin();it != hashmap.end();it++)
             {
                 priqueue.push(make_pair(it->second,it->first));
@@ -62,41 +73,53 @@ void TopUrl::count_for_all_block()
             {
                 pair<int,string> temp = priqueue.top();
                 priqueue.pop();
-                fprintf(fcount,"%d %s\n",temp.first,temp.second.c_str());
+                fprintf(fcollect,"%d %s\n",temp.first,temp.second.c_str());
             }
     }
+
     for (int i = 0;i < N;i++)
-        fclose(ftemp[i]);
-    fclose(fcount);
+        fclose(ftemp_block[i]);
+    fclose(fcollect);
 };
 
 //collect all result
 void TopUrl::collect_all_result()
 {
-    fcount = fopen("count.txt","r");
-    fout = fopen("answer.txt","w");
+    if ((fcollect = fopen("collect.txt","r"))==NULL)
+        throw "Open file error.";
+    if ((fout = fopen("answer.txt","w"))==NULL)
+        throw "Open file error.";
+    
+    //heap-sort
     while (priqueue.size()) priqueue.pop();
-    while (fscanf(fcount,"%d %s",&countnum,url)!=EOF)
+    while (fscanf(fcollect,"%d %s",&countnum,url)!=EOF)
     {
         priqueue.push(std::make_pair(countnum,url));
         if (priqueue.size() > 100)
             priqueue.pop(); 
     }
+
+    //Reverse output
+    vector<pair<int,string>> answer;
     while (priqueue.size())
         {
             pair<int,string> temp = priqueue.top();
             priqueue.pop();
-            fprintf(fout,"%d %s\n",temp.first,temp.second.c_str());
+            answer.push_back(temp);
         }
+    for (int i = answer.size()-1;i >= 0;i--)
+        fprintf(fout,"%s %d\n",answer[i].second.c_str(),answer[i].first);
+
     fclose(fout);
 };
 
 //clear temp file
 void TopUrl::clear_temp_file()
 {
+    remove("collect.txt");
     for (int i = 0;i < N;i++)
     {
-        fclose(ftemp[i]);
+        fclose(ftemp_block[i]);
         string filename = std::to_string(i) + ".txt";
         remove(filename.c_str());
     }

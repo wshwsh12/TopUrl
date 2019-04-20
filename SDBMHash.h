@@ -1,3 +1,3 @@
 #include <cstdio>
 
-unsigned int SDBM_hash(char *str);
+unsigned int SDBM_hash(char *str); 

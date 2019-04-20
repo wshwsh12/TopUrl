@@ -19,7 +19,7 @@ class TopUrl
 {
     public:
 
-    TopUrl(int n = 500);
+    TopUrl();
 
     ~TopUrl();
     //split data to block
@@ -36,13 +36,13 @@ class TopUrl
 
     private:
     
-    FILE *fin,*fout,*fcount;
+    FILE *fin,*fout,*fcollect;
 
-    FILE **ftemp;
+    FILE **ftemp_block;
 
-    char url[101000];
+    char* url;
     int countnum;
-    int N;
+    const int N = 500;
 
     unordered_map<string,int> hashmap;
     unordered_map<string,int>::iterator it;

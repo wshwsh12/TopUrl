@@ -7,18 +7,17 @@
 #include <iostream>
 using namespace std;
 
-#define G 1
-#define M 100
+int G = 1;
+#define M 1000
 #define N 10000
-
-char alpha[36];
-char s[200];
-int main()
+char s[10000];
+int main(int argc,char** argv)
 {
-    FILE* fout = fopen("data_100M.txt","w");
-
+    FILE* fout = fopen("data.txt","w");
+    if (argc == 2)
+        sscanf(argv[1],"%d",&G);
     srand(time(0));
-    for (int t = 1;t <= G;t++,puts(""))
+    for (int t = 1;t <= G;t++)
     for (int k = 1;k <= M;k++)
     for (int i = 1;i <= N;i++)
         {
@@ -27,7 +26,5 @@ int main()
             fprintf(fout,"%s\n",s);
         }
     
-    cout << clock() << endl;
-    system("pause");
     return 0;
 }
