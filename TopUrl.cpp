@@ -27,12 +27,15 @@ void TopUrl::preprocess()
     }
 
     //split url to hash(url)%500 th block
-    while (fscanf(fin,"%s",url)!=EOF)
+    FastIO *io = new FastIO(fin);
+    while (io->rstring(url)!=EOF)
     {
         unsigned int m = SDBM_hash(url) % N;
         fprintf(ftemp_block[m],"%s\n",url);
     }
-    
+    delete io;
+
+
     fclose(fin);
     for (int i = 0;i < N;i++)
         fclose(ftemp_block[i]);
@@ -41,24 +44,28 @@ void TopUrl::preprocess()
 //count num for all block
 void TopUrl::count_for_all_block()
 {
+
+    if ((fcollect = fopen("collect.txt","w"))==NULL)
+        throw "Open file error.";
+
     for (int i = 0;i < N;i++)
     {
         string filename = std::to_string(i) + ".txt";
         if ((ftemp_block[i] = fopen(filename.c_str(),"r"))==NULL)
             throw "Open file error.";
     }
-    if ((fcollect = fopen("collect.txt","w"))==NULL)
-        throw "Open file error.";
-
+    
     for (int i = 0;i < N;i++)
     {
         hashmap.clear();
         //count num
-        while (fscanf(ftemp_block[i],"%s",url)!=EOF)
+        FastIO *io = new FastIO(ftemp_block[i]);
+        while (io->rstring(url)!=EOF)
         {
             string ss = url;
             hashmap[ss]++;
         }
+        delete io;
 
         //heap-sort
         while (priqueue.size()) priqueue.pop();
@@ -68,7 +75,7 @@ void TopUrl::count_for_all_block()
                 if (priqueue.size() > 100)
                     priqueue.pop();
             }
-        
+    
         while (priqueue.size())
             {
                 pair<int,string> temp = priqueue.top();

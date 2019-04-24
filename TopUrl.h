@@ -5,9 +5,9 @@
 #include <ctime>
 #include <unordered_map>
 #include <queue>
-#include <thread>
 
 #include "SDBMHash.h"
+#include "FastIO.h"
 
 using std::pair;
 using std::string;

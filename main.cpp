@@ -9,8 +9,9 @@
 
 int main()
 {
+    int t = clock();
     try{
-
+    
     TopUrl *topurl = new TopUrl();
     topurl->preprocess();
     topurl->count_for_all_block();
