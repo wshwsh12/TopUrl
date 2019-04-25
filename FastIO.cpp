@@ -12,6 +12,14 @@ FastIO::FastIO(FILE* _fin):fin(_fin)
     r_len = 0, r_pos = 0;
     rbuf = (char*)calloc(sizeof(char) , BufSize);
 }
+
+void FastIO::reset(FILE* _fin)
+{
+    fin = _fin;
+    r_len = 0, r_pos = 0;
+    memset(rbuf,0, BufSize);
+}
+
 int FastIO::rchar() {
     if (r_pos == r_len)
         r_pos = 0, r_len = fread(rbuf, 1, BufSize, fin);

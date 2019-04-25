@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 
 class FastIO {
@@ -13,6 +14,9 @@ class FastIO {
     int rchar();
     int rint();
     int rstring(char *s);
+
+    //reuse
+    void reset(FILE *fin);
 
     private:
     static const int BufSize = 1e7;

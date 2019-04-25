@@ -9,7 +9,6 @@
 
 int main()
 {
-    int t = clock();
     try{
     
     TopUrl *topurl = new TopUrl();
